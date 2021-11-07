@@ -1,12 +1,8 @@
 from tkinter import *
 import pandas
 from tkinter import messagebox
-import webbrowser
 import requests
-
-
-def callback(url):
-    webbrowser.open(url)
+from web_scraper import WebScraper
 
 
 def check_list_existence():
@@ -38,17 +34,14 @@ def show_items():
         row = 1
         for item in url_list:
             for data in url_list[item]:
+                font_style = ("Arial", 12, "bold")
                 if item == "price":
-                    font_style = ("Arial", 12, "bold")
-                    fg = "black"
+                    text = data
                 else:
-                    font_style = ("Arial", 12, "normal", "underline")
-                    fg = "blue"
-                label = Label(window, text=data, font=font_style, fg=fg)
+                    web_scraper = WebScraper(data)
+                    text = web_scraper.return_title()
+                label = Label(window, text=text, font=font_style)
                 label.grid(row=row, column=column, pady=5, padx=40)
-                if item == "url":
-                    label.bind("<Button-1>", lambda e: callback(data))
-                    label.config(cursor="hand1")
                 row += 1
             column += 1
             row = 1
