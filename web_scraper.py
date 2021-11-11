@@ -1,7 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
 
-
 class WebScraper:
 
     def __init__(self, url):
@@ -9,8 +8,9 @@ class WebScraper:
         self.soup = BeautifulSoup(self.response.text, "html.parser")
 
     def return_current_price(self):
-        price = self.soup.find(class_="a-offscreen").get_text().replace("$", '')
-        return float(price)
+        price = self.soup.find(class_="a-offscreen")
+        price_text = price.get_text().replace("$", '')
+        return float(price_text)
 
     def return_title(self):
         title = self.soup.select_one(selector="#productTitle").get_text().strip()

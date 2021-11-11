@@ -3,38 +3,44 @@ from web_scraper import WebScraper
 from price_comparer import PriceComparer
 from email_client import EmailClient
 from datetime import datetime
+import time
 
 today = datetime.now().strftime("%d/%m/%Y")
-data_dict = {"date": []}
 message = ""
 url_list = pandas.read_csv("../url_file.txt")
 url_list = url_list.to_dict("list")
 url_list.pop("Unnamed: 0")
+try:
+    file = pandas.read_csv("price_over_time.txt")
+except FileNotFoundError:
+    pass
+else:
+    data_dict = file.to_dict(orient="list")
+    data_dict.pop("Unnamed: 0")
 
 for num in range(0, len(url_list["url"])):
     web_scraper = WebScraper(url_list["url"][num])
+    time.sleep(1)
     current_price = web_scraper.return_current_price()
     input_price = int(url_list["price"][num].replace("$", ""))
-    try:
-        file = pandas.read_csv("price_over_time.txt")
-    except FileNotFoundError:
-        pass
-    else:
-        data_dict = file.to_dict("list")
-        data_dict.pop("Unnamed: 0")
-    finally:
-        if not data_dict["date"]:
+
+    if not data_dict["date"]:
+        data_dict["date"] = []
+        data_dict["date"].append(today)
+    for item in data_dict["date"]:
+        if item != today:
             data_dict["date"].append(today)
-        for item in data_dict["date"]:
-            if item != today:
-                data_dict["date"].append(today)
-        for header in data_dict:
-            if header == web_scraper.return_title():
-                header.append[current_price]
-            else:
-                data_dict[web_scraper.return_title()] = []
-                data_dict[web_scraper.return_title()].append(current_price)
-                break
+    print(data_dict)
+    for header in data_dict.keys():
+        if header == web_scraper.return_title():
+            print('im here')
+            header.append[current_price]
+        else:
+            data_dict[web_scraper.return_title()] = []
+            for item in range(1, len(data_dict["date"])-1):
+                data_dict[web_scraper.return_title()].append(0)
+            data_dict[web_scraper.return_title()].append(current_price)
+            break
 
 
     # Price comparer class takes in current price and compares it to user inputted price from url_file.txt
@@ -48,6 +54,7 @@ for num in range(0, len(url_list["url"])):
     else:
         pass
 
+print(data_dict)
 df = pandas.DataFrame(data_dict)
 df.to_csv("price_over_time.txt")
 if message != "":
