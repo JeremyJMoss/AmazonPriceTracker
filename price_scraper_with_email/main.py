@@ -3,9 +3,10 @@ from web_scraper import WebScraper
 from price_comparer import PriceComparer
 from email_client import EmailClient
 from datetime import datetime
-import time
 
 today = datetime.now().strftime("%d/%m/%Y")
+title = ""
+data_dict = {}
 message = ""
 url_list = pandas.read_csv("../url_file.txt")
 url_list = url_list.to_dict("list")
@@ -18,30 +19,22 @@ else:
     data_dict = file.to_dict(orient="list")
     data_dict.pop("Unnamed: 0")
 
-for num in range(0, len(url_list["url"])):
-    web_scraper = WebScraper(url_list["url"][num])
-    time.sleep(1)
-    current_price = web_scraper.return_current_price()
-    input_price = int(url_list["price"][num].replace("$", ""))
-
-    if not data_dict["date"]:
-        data_dict["date"] = []
-        data_dict["date"].append(today)
-    for item in data_dict["date"]:
-        if item != today:
-            data_dict["date"].append(today)
-    print(data_dict)
-    for header in data_dict.keys():
-        if header == web_scraper.return_title():
-            print('im here')
-            header.append[current_price]
+if "date" not in data_dict.keys():
+    data_dict["date"] = []
+if today not in data_dict["date"]:
+    data_dict["date"].append(today)
+    for num in range(0, len(url_list["url"])):
+        web_scraper = WebScraper(url_list["url"][num])
+        current_price = web_scraper.return_current_price()
+        input_price = int(url_list["price"][num].replace("$", ""))
+        title = web_scraper.return_title()
+        if title in data_dict:
+            data_dict[title].append(current_price)
         else:
-            data_dict[web_scraper.return_title()] = []
+            data_dict[title] = []
             for item in range(1, len(data_dict["date"])-1):
-                data_dict[web_scraper.return_title()].append(0)
-            data_dict[web_scraper.return_title()].append(current_price)
-            break
-
+                data_dict[title].append(0)
+            data_dict[title].append(current_price)
 
     # Price comparer class takes in current price and compares it to user inputted price from url_file.txt
     price_comparer = PriceComparer(current_price, input_price)
